@@ -37,38 +37,40 @@ def servoMotor(pin, degree, t):
     pwm.stop()
     GPIO.cleanup(pin)
 
+
+flag=0
 open=False
 while True:
+    # recog = False
     ret, img =cam.read()
-    img = cv2.flip(img, -1) # Flip vertically, horizontally
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY) # gray scale
+    img = cv2.flip(img, -1) # Flip vertically
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
     
-    # face detection
     faces = faceCascade.detectMultiScale( 
         gray,
         scaleFactor = 1.2,
         minNeighbors = 5,
         minSize = (int(minW), int(minH)),
-    )
-    # draw rectangle on detected face image
+       )
     for(x,y,w,h) in faces:
         cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
-        # Confidence = 0 -> perfect matching
         id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
-        # If box is closed and can recognize the user -> open the box
-        if (not open and confidence < 100):
+        # Check if confidence is less them 100 ==> "0" is perfect match
+        if (open == False and confidence < 100):
             open = True
-            servoMotor(16, 11.0, 1) # open
-            # Maintain open status for 5 seconds
+            flag = 0
+            servoMotor(16, 8, 1) # open - 신호선을 16번 핀에 연결, 8의 각도로 1초동안 실행
             time.sleep(5)
 
-    # box is opened, and cannot detect the user -> close the box
-    if(open and (len(faces)==0 or confidence>=100)):
-        open = False
-        servoMotor(16, 3.0, 1) # close
-        # release and restart the camera
-        cam.release()
-        cam = cv2.VideoCapture(0)
+
+    if(len(faces)==0 and open):
+        flag+=1
+        if(flag>10):
+            open = False
+            flag = 0
+            servoMotor(16, 3.0, 1) # close
+            cam.release()
+            cam = cv2.VideoCapture(0)
         
 
     cv2.imshow('camera',img) 
