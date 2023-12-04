@@ -5,7 +5,9 @@ import RPi.GPIO as GPIO
 import time
 
 motor = 16
-buzzer = 18
+buzzer = 19
+green_led = 17
+red_led = 18
 
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 # yml 파일 read
@@ -20,9 +22,11 @@ cam = cv2.VideoCapture(0)
 cam.set(3, 640) # set video widht
 cam.set(4, 480) # set video height
 
-# Busser set
+# Busser, LED set
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(buzzer, GPIO.OUT)
+GPIO.setup(green_led, GPIO.OUT)
+GPIO.setup(red_led, GPIO.OUT)
 GPIO.setwarnings(False)
 
 # Define min window size to be recognized as a face
@@ -50,6 +54,12 @@ def buzzerOn(pin, sound):
     pwm.start(50.0)
     time.sleep(1)
 
+# LED 함수
+def LedOn(pin):
+    GPIO.output(pin, GPIO.HIGH)
+    time.sleep(1)
+
+
 open=False
 while True:
     ret, img =cam.read()
@@ -72,15 +82,18 @@ while True:
         if (not open and confidence < 75):
             open = True
             buzzerOn(buzzer, 523) # open buzzer
+            LedOn(green_led) # green led on
             servoMotor(16, 11.0, 1) # open motor
             # Maintain open status for 5 seconds
             time.sleep(5)
+        elif(not open and confidence >=75): LedOn(red_led)
 
     # box is opened, and cannot detect the user -> close the box
     if(open and (len(faces)==0 or confidence>=75)):
         open = False
         buzzerOn(buzzer, 262) # close buzzer
         servoMotor(16, 3.0, 1) # close motor
+        # if(confidence>=75): LedOn(red_led)
 
         # release and restart the camera
         cam.release()
