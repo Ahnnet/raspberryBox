@@ -69,7 +69,7 @@ while True:
         # Confidence = 0 -> perfect matching
         id, confidence = recognizer.predict(gray[y:y+h,x:x+w])
         # If box is closed and can recognize the user -> open the box
-        if (not open and confidence < 100):
+        if (not open and confidence < 75):
             open = True
             buzzerOn(buzzer, 523) # open buzzer
             servoMotor(16, 11.0, 1) # open motor
@@ -77,7 +77,7 @@ while True:
             time.sleep(5)
 
     # box is opened, and cannot detect the user -> close the box
-    if(open and (len(faces)==0 or confidence>=100)):
+    if(open and (len(faces)==0 or confidence>=75)):
         open = False
         buzzerOn(buzzer, 262) # close buzzer
         servoMotor(16, 3.0, 1) # close motor
