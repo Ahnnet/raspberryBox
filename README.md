@@ -1,10 +1,7 @@
-# 임베디드
-
+# Raspberry Box 🍓
 Gachon Univ. Embeded system team project
 
-# Raspberry Box 🍓
-
-OPEN and CLOSE the locker AUTOMATICALLY using OpenCV.
+## OPEN and CLOSE the locker AUTOMATICALLY using OpenCV.
 
 When the owner stand infront of the locker, It recognize the owner and open the lockers door automatically. And when owner leave the locker, the lockers door closed automatically.
 
